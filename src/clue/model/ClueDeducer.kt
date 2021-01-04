@@ -133,14 +133,12 @@ class ClueDeducer(
         val ctx : Context = Context()
         val know = clauseList.convertToZ3(ctx)
 
-        // Our expression should not be necessarily false`1
+        // Our expression should not be necessarily false
         val testSolver = ctx.mkSolver()
         testSolver.add(know)
         assert(testSolver.check() == Status.SATISFIABLE)
 
-
-        // First solve for the weapon
-        val weapon = findImplies<Weapon>(gameManager.weapons, know, ctx)
+        val weapon = findImplies(gameManager.weapons, know, ctx)
         val person = findImplies(gameManager.people, know, ctx)
         val room = findImplies(gameManager.rooms, know, ctx)
 
@@ -150,9 +148,9 @@ class ClueDeducer(
     fun addHandInfo(player : String, hand : List<Card>) : Boolean {
         val loc = gameManager.locationOfPlayer(player) ?: return false
         val literals : List<Literal?> = hand.map {c -> gameManager.literalOfCard(c, loc)}
-
-        println("Adding hand info.")
-        println(literals)
+        val notInHand = gameManager.cards.filterNot {hand.contains(it)} .map {c -> gameManager.literalOfCard(c, loc)}
+//        println("Adding hand info.")
+//        println(literals)
 
         if(literals.contains(null)) {
             println("WARNING: HAND INFO CONTAINS NULLS")
@@ -160,6 +158,8 @@ class ClueDeducer(
         } else {
             // This is safe because we check if the list contains null above
             (literals as List<Literal>).forEach {clauseList.addClause(Clause(it))}
+            (notInHand as List<Literal>).forEach {clauseList.addClause(Clause(it.negation()))}
+
             return true
         }
     }
@@ -224,26 +224,38 @@ class ClueDeducer(
     fun suggest(
         suggester : String,
         person : Person,
-        room : Room,
         weapon : Weapon,
+        room : Room,
         refuter : String? = null,
         cardShown : Card? = null
     ) : Boolean {
-        val loc = gameManager.locationOfPlayer(suggester) ?: return false
+        if(!gameManager.isValidPlayer(suggester)) {
+            println("Invalid suggester")
+            return false
+        }
 
         // ensure precondition of valid cards
         if(!gameManager.isValidCard(person)
             || !gameManager.isValidCard(weapon)
             || !gameManager.isValidCard(room)
         ) {
+            println("Suggestion $person $weapon $room failed.")
+            println("Cards: ${gameManager.cards}")
             return false
         }
 
         val doesNotHave =
             if (refuter == null)
                 gameManager.players.filter { it != suggester }
-            else
-                gameManager.players.subList(0, gameManager.players.indexOf(refuter)).filter {it != suggester}
+            else {
+                val indexOfRefuter = gameManager.players.indexOf(refuter)
+
+                assert (indexOfRefuter != -1)
+
+                gameManager.players.subList(0, indexOfRefuter).filter {it != suggester}
+            }
+
+        assert (!(doesNotHave.map {gameManager.locationOfPlayer(it)}).contains(null))
 
         addDoNotHave(
             (doesNotHave.map {gameManager.locationOfPlayer(it)}).filterNotNull(),
@@ -253,6 +265,7 @@ class ClueDeducer(
         )
 
         if(refuter != null) {
+            assert (gameManager.isValidPlayer(refuter))
             val refuterLoc = gameManager.locationOfPlayer(refuter) ?: return false
 
             if(cardShown == null) {
@@ -300,6 +313,8 @@ class ClueDeducer(
         assert(gameManager.isValidCard(weapon))
         assert(gameManager.isValidCard(person))
         assert(gameManager.isValidCard(room))
+
+        println("Do not have: $doesNotHave")
 
         for(player in doesNotHave) {
             clauseList.addClause(Clause(gameManager.literalOfCard(person, player)!!.negation()))

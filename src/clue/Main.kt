@@ -26,10 +26,11 @@ fun simpleGame() {
 
     val deducer = ClueDeducer(PLAYERS, WEAPONS, PEOPLE, ROOMS)
 
+    deducer.addHandInfo("player1", listOf(Weapon("weapon2")))
     // The deducer will be player1
-    val handInfo = deducer.addHandInfo("player1", listOf(Person("person1"), Weapon("weapon1"), Room("room1")))
-
-    if(!handInfo) println("Hand info was false")
+    deducer.suggest("player1", Person("person2"), Weapon("weapon2"), Room("room2"), "player2", Person("person2"))
+    deducer.suggest("player1", Person("person2"), Weapon("weapon2"), Room("room2"), "player2", Room("room2"))
+    deducer.suggest("player1", Person("person1"), Weapon("weapon1"), Room("room2"), "player2", Room("room2"))
 
     println(deducer.getCurrentDeduction())
 }
@@ -37,46 +38,19 @@ fun simpleGame() {
 fun testGame() {
     println("Test game:")
 
-    val PEOPLE = listOf("mu", "pl", "gr", "pe", "sc", "wh")
-    val WEAPONS = listOf("kn", "ca", "re", "ro", "pi", "wr")
-    val ROOMS = listOf("ha", "lo", "di", "ki", "ba", "co", "bi", "li", "st")
+    val PEOPLE = listOf("p1", "p2", "p3", "p4", "p5", "p6")
+    val WEAPONS = listOf("w1", "w2", "w3", "w4", "w5", "w6")
+    val ROOMS = listOf("r1", "r2", "r3", "r4", "r5", "r6")
 
-    val cr = ClueDeducer(PEOPLE, WEAPONS, PEOPLE, ROOMS)
+    val PLAYERS = listOf("p1", "p2", "p3")
 
-    val us = "sc"
+    val cr = ClueDeducer(PLAYERS, WEAPONS, PEOPLE, ROOMS)
 
-    cr.addHandInfo(us, listOf(Person("wh"), Room("li"), Room("st")))
+    cr.addHandInfo("p1", listOf(Person("p2"), Person("p3"), Person("p4"), Person("p5"), Person("p6")))
 
-    cr.suggest("sc", Person("sc"), Room("ro"), Weapon("lo"), "mu", Person("sc"))
-    cr.suggest("mu", Person("pe"), Room("pi"), Weapon("di"), "pe", null)
-    cr.suggest("wh", Person("mu"), Room("re"), Weapon("ba"), "pe", null)
-    cr.suggest("gr", Person("wh"), Room("kn"), Weapon("ba"), "pl", null)
-    cr.suggest("pe", Person("gr"), Room("ca"), Weapon("di"), "wh", null)
-    cr.suggest("pl", Person("wh"), Room("wr"), Weapon("st"), "sc", Person("wh"))
-    cr.suggest("sc", Person("pl"), Room("ro"), Weapon("co"), "mu", Person("pl"))
-    cr.suggest("mu", Person("pe"), Room("ro"), Weapon("ba"), "wh", null)
-    cr.suggest("wh", Person("mu"), Room("ca"), Weapon("st"), "gr", null)
-    cr.suggest("gr", Person("pe"), Room("kn"), Weapon("di"), "pe", null)
-    cr.suggest("pe", Person("mu"), Room("pi"), Weapon("di"), "pl", null)
-    cr.suggest("pl", Person("gr"), Room("kn"), Weapon("co"), "wh", null)
-    cr.suggest("sc", Person("pe"), Room("kn"), Weapon("lo"), "mu", Room("lo"))
-    cr.suggest("mu", Person("pe"), Room("kn"), Weapon("di"), "wh", null)
-    cr.suggest("wh", Person("pe"), Room("wr"), Weapon("ha"), "gr", null)
-    cr.suggest("gr", Person("wh"), Room("pi"), Weapon("co"), "pl", null)
-    cr.suggest("pe", Person("sc"), Room("pi"), Weapon("ha"), "mu", null)
-    cr.suggest("pl", Person("pe"), Room("pi"), Weapon("ba"), null, null)
-    cr.suggest("sc", Person("wh"), Room("pi"), Weapon("ha"), "pe", Room("ha"))
-    cr.suggest("wh", Person("pe"), Room("pi"), Weapon("ha"), "pe", null)
-    cr.suggest("pe", Person("pe"), Room("pi"), Weapon("ha"), null, null)
-    cr.suggest("sc", Person("gr"), Room("pi"), Weapon("st"), "wh", Person("gr"))
-    cr.suggest("mu", Person("pe"), Room("pi"), Weapon("ba"), "pl", null)
-    cr.suggest("wh", Person("pe"), Room("pi"), Weapon("st"), "sc", Room("st"))
-    cr.suggest("gr", Person("wh"), Room("pi"), Weapon("st"), "sc", Person("wh"))
-    cr.suggest("pe", Person("wh"), Room("pi"), Weapon("st"), "sc", Person("wh"))
-    cr.suggest("pl", Person("pe"), Room("pi"), Weapon("ki"), "gr", null)
+    cr.suggest("p1", Person("p2"), Weapon("w1"), Room("r1"), null, null)
 
-    println("Current Deduction:")
-    println(cr.getCurrentDeduction())
-    println("Correct Deduction:")
-    println("pe, pi, bi")
+
+    println("Deduction final ${cr.getCurrentDeduction()}")
+    println("Correct: p1, w1, r1")
 }
