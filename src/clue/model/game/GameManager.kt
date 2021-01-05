@@ -52,6 +52,7 @@ class GameManager(val players : List<String>, val cards : List<Card>) {
         }
 
         return if(cardNum == null || playerNum == null) {
+            println("cardNum not found: $card")
             null
         } else {
             Literal((playerNum) * (cards.size) + cardNum + 1, card.toString(), location)

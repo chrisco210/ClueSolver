@@ -149,8 +149,8 @@ class ClueDeducer(
         val loc = gameManager.locationOfPlayer(player) ?: return false
         val literals : List<Literal?> = hand.map {c -> gameManager.literalOfCard(c, loc)}
         val notInHand = gameManager.cards.filterNot {hand.contains(it)} .map {c -> gameManager.literalOfCard(c, loc)}
-//        println("Adding hand info.")
-//        println(literals)
+        println("Adding hand info.")
+        println(literals)
 
         if(literals.contains(null)) {
             println("WARNING: HAND INFO CONTAINS NULLS")

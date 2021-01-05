@@ -15,7 +15,8 @@ import com.microsoft.z3.*
 val PLAYERS : List<String> = listOf()
 fun main() {
 //    simpleGame()
-    testGame()
+//    testGame()
+    testGame2()
 }
 
 fun simpleGame() {
@@ -32,6 +33,56 @@ fun simpleGame() {
     deducer.suggest("player1", Person("person2"), Weapon("weapon2"), Room("room2"), "player2", Room("room2"))
     deducer.suggest("player1", Person("person1"), Weapon("weapon1"), Room("room2"), "player2", Room("room2"))
 
+    println(deducer.getCurrentDeduction())
+}
+
+fun testGame2() {
+    println("Test game 2:")
+
+    val PEOPLE = listOf("ro", "mu", "gr", "sc", "pe", "pk", "wh", "br", "pl", "gy")
+    val ROOMS = listOf("di", "ch", "li", "dw", "cy", "co", "sd", "bi", "ga", "ki", "fo", "tr")
+    val WEAPONS = listOf("pi", "ro", "ho", "cs", "re", "wr", "kn", "po")
+
+    val PLAYERS = listOf("elena", "chris")
+
+    val deducer = ClueDeducer(PLAYERS, WEAPONS, PEOPLE, ROOMS)
+
+    val HAND = listOf(
+        Person("pl"),
+        Person("gr"),
+        Person("gy"),
+        Person("br"),
+        Person("pe"),
+        Room("di"),
+        Room("li"),
+        Room("ki"),
+        Room("bi"),
+        Room("cy"),
+        Room("tr"),
+        Weapon("ro"),
+        Weapon("wr")
+    )
+
+    deducer.addHandInfo("chris", HAND)
+
+    deducer.suggest("elena", Person("mu"), Weapon("ro"), Room("ga"), "chris", Weapon("ro"))
+    deducer.suggest("chris", Person("gr"), Weapon("kn"), Room("ga"), "elena", Room("ga"))
+    deducer.suggest("elena", Person("pl"), Weapon("kn"), Room("dw"), "chris", Person("pl"))
+    deducer.suggest("chris", Person("pk"), Weapon("kn"), Room("dw"), "elena", Room("dw"))
+    deducer.suggest("elena", Person("gr"), Weapon("kn"), Room("dw"), "chris", Person("gr"))
+    deducer.suggest("chris", Person("ro"), Weapon("pi"), Room("ch"), "elena", Person("ro"))
+    deducer.suggest("elena", Person("ro"), Weapon("pi"), Room("dw"), null, null)
+    deducer.suggest("chris", Person("pl"), Weapon("pi"), Room("tr"), null, null)
+    deducer.suggest("elena", Person("wh"), Weapon("pi"), Room("dw"), null, null)
+    deducer.suggest("chris", Person("wh"), Weapon("pi"), Room("di"), null, null)
+    deducer.suggest("elena", Person("wh"), Weapon("pi"), Room("ki"), "chris", Room("ki"))
+    deducer.suggest("chris", Person("wh"), Weapon("pi"), Room("bi"), null, null)
+    deducer.suggest("elena", Person("wh"), Weapon("pi"), Room("bi"), "chris", Room("bi"))
+    deducer.suggest("chris", Person("wh"), Weapon("pi"), Room("ch"), null, null)
+//    deducer.suggest("elena", Person("wh"), Weapon("pi"), Room("ch"), null, null)
+
+
+    // Should be: wh pi ch
     println(deducer.getCurrentDeduction())
 }
 
